@@ -154,3 +154,27 @@
         ERR-INSUFFICIENT-COLLATERAL
     ))
 )
+
+;; Liquidation Function
+(define-public (liquidate (user principal))
+    (let (
+        (user-pos (default-to
+            { total-collateral: u0, total-borrowed: u0, loan-count: u0 }
+            (map-get? user-positions { user: user })))
+        (collateral (get total-collateral user-pos))
+        (borrowed (get total-borrowed user-pos))
+        (ratio (get-collateral-ratio collateral borrowed))
+    )
+    (if (< ratio (var-get liquidation-threshold))
+        (begin
+            ;; Transfer collateral to liquidator with penalty
+            (try! (as-contract (stx-transfer? collateral (as-contract tx-sender) tx-sender)))
+            ;; Clear user position
+            (map-delete user-positions { user: user })
+            (var-set total-deposits (- (var-get total-deposits) collateral))
+            (var-set total-borrows (- (var-get total-borrows) borrowed))
+            (ok true)
+        )
+        ERR-LIQUIDATION-FAILED
+    ))
+)
