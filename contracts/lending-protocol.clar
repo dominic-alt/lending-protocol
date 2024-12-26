@@ -14,3 +14,10 @@
 (define-constant ERR-LOAN-ACTIVE (err u104))
 (define-constant ERR-INSUFFICIENT-BALANCE (err u105))
 (define-constant ERR-LIQUIDATION-FAILED (err u106))
+
+;; Data Variables
+(define-data-var minimum-collateral-ratio uint u150) ;; 150% collateralization ratio
+(define-data-var liquidation-threshold uint u130) ;; 130% triggers liquidation
+(define-data-var protocol-fee uint u1) ;; 1% fee
+(define-data-var total-deposits uint u0)
+(define-data-var total-borrows uint u0)
