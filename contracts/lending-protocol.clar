@@ -21,3 +21,26 @@
 (define-data-var protocol-fee uint u1) ;; 1% fee
 (define-data-var total-deposits uint u0)
 (define-data-var total-borrows uint u0)
+
+;; Data Maps
+(define-map loans
+    { loan-id: uint }
+    {
+        borrower: principal,
+        collateral-amount: uint,
+        borrowed-amount: uint,
+        interest-rate: uint,
+        start-height: uint,
+        last-interest-update: uint,
+        active: bool
+    }
+)
+
+(define-map user-positions
+    { user: principal }
+    {
+        total-collateral: uint,
+        total-borrowed: uint,
+        loan-count: uint
+    }
+)
