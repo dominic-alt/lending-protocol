@@ -178,3 +178,21 @@
         ERR-LIQUIDATION-FAILED
     ))
 )
+
+;; Read-Only Functions
+(define-read-only (get-user-position (user principal))
+    (default-to
+        { total-collateral: u0, total-borrowed: u0, loan-count: u0 }
+        (map-get? user-positions { user: user })
+    )
+)
+
+(define-read-only (get-protocol-stats)
+    {
+        total-deposits: (var-get total-deposits),
+        total-borrows: (var-get total-borrows),
+        minimum-collateral-ratio: (var-get minimum-collateral-ratio),
+        liquidation-threshold: (var-get liquidation-threshold),
+        protocol-fee: (var-get protocol-fee)
+    }
+)
