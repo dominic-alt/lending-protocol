@@ -44,3 +44,35 @@
         loan-count: uint
     }
 )
+
+;; Private Functions
+(define-private (calculate-interest (principal uint) (rate uint) (blocks uint))
+    (let (
+        (interest-per-block (/ (* principal rate) u10000))
+        (total-interest (* interest-per-block blocks))
+    )
+    total-interest)
+)
+
+(define-private (get-collateral-ratio (collateral uint) (debt uint))
+    (if (is-eq debt u0)
+        u0
+        (/ (* collateral u100) debt)
+    )
+)
+
+(define-private (update-user-position (user principal) (collateral-change int) (borrow-change int))
+    (let (
+        (current-position (default-to
+            { total-collateral: u0, total-borrowed: u0, loan-count: u0 }
+            (map-get? user-positions { user: user })))
+    )
+    (map-set user-positions
+        { user: user }
+        {
+            total-collateral: (+ (get total-collateral current-position) collateral-change),
+            total-borrowed: (+ (get total-borrowed current-position) borrow-change),
+            loan-count: (get loan-count current-position)
+        }
+    ))
+)
