@@ -61,17 +61,23 @@
     )
 )
 
-(define-private (update-user-position (user principal) (collateral-change int) (borrow-change int))
+(define-private (update-user-position (user principal) (collateral-delta uint) (is-collateral-increase bool) (borrow-delta uint) (is-borrow-increase bool))
     (let (
         (current-position (default-to
             { total-collateral: u0, total-borrowed: u0, loan-count: u0 }
             (map-get? user-positions { user: user })))
+        (new-collateral (if is-collateral-increase
+            (+ (get total-collateral current-position) collateral-delta)
+            (- (get total-collateral current-position) collateral-delta)))
+        (new-borrowed (if is-borrow-increase
+            (+ (get total-borrowed current-position) borrow-delta)
+            (- (get total-borrowed current-position) borrow-delta)))
     )
     (map-set user-positions
         { user: user }
         {
-            total-collateral: (+ (get total-collateral current-position) collateral-change),
-            total-borrowed: (+ (get total-borrowed current-position) borrow-change),
+            total-collateral: new-collateral,
+            total-borrowed: new-borrowed,
             loan-count: (get loan-count current-position)
         }
     ))
@@ -86,7 +92,7 @@
         (begin
             (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
             (var-set total-deposits (+ (var-get total-deposits) amount))
-            (update-user-position tx-sender amount 0)
+            (update-user-position tx-sender amount true u0 true)
             (ok amount)
         )
         ERR-INVALID-AMOUNT
@@ -108,7 +114,7 @@
         (begin
             (try! (as-contract (stx-transfer? amount (as-contract tx-sender) tx-sender)))
             (var-set total-borrows (+ (var-get total-borrows) amount))
-            (update-user-position tx-sender 0 amount)
+            (update-user-position tx-sender u0 true amount true)
             (ok amount)
         )
         ERR-INSUFFICIENT-COLLATERAL
@@ -126,7 +132,7 @@
         (begin
             (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
             (var-set total-borrows (- (var-get total-borrows) amount))
-            (update-user-position tx-sender 0 (* -1 amount))
+            (update-user-position tx-sender u0 true amount false)
             (ok amount)
         )
         ERR-INVALID-AMOUNT
@@ -148,7 +154,7 @@
         (begin
             (try! (as-contract (stx-transfer? amount (as-contract tx-sender) tx-sender)))
             (var-set total-deposits (- (var-get total-deposits) amount))
-            (update-user-position tx-sender (* -1 amount) 0)
+            (update-user-position tx-sender amount false u0 true)
             (ok amount)
         )
         ERR-INSUFFICIENT-COLLATERAL
