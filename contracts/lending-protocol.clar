@@ -196,3 +196,28 @@
         protocol-fee: (var-get protocol-fee)
     }
 )
+
+;; Admin Functions
+(define-public (set-minimum-collateral-ratio (new-ratio uint))
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set minimum-collateral-ratio new-ratio)
+        (ok true)
+    )
+)
+
+(define-public (set-liquidation-threshold (new-threshold uint))
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set liquidation-threshold new-threshold)
+        (ok true)
+    )
+)
+
+(define-public (set-protocol-fee (new-fee uint))
+    (begin
+        (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-NOT-AUTHORIZED)
+        (var-set protocol-fee new-fee)
+        (ok true)
+    )
+)
